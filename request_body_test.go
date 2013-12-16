@@ -40,9 +40,9 @@ func TestRequestBody(t *testing.T) {
 		header.Add("Delta-Backend", backend)
 	})
 
-	shouldquit := make(chan map[string]*Response)
-	server.OnBackendFinished(func(responses map[string]*Response) {
-		shouldquit <- responses
+	var responses map[string]*Response
+	server.OnBackendFinished(func(rs map[string]*Response) {
+		responses = rs
 	})
 
 	handler := NewHandler(server)
@@ -51,8 +51,6 @@ func TestRequestBody(t *testing.T) {
 	request.Header.Add("Delta-Test-Enabled", "1")
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, request)
-
-	responses := <-shouldquit
 
 	Describe(t, "ServeHTTP", func() {
 		Context("when request have request body", func() {
